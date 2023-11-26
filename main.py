@@ -3,7 +3,8 @@ import math
 from model.color_algorithm import ColorAlgorithm
 from model.point2d import Point2D
 from model.rgb import RGB
-from model.color_algorithm import RainbowRGB, RainbowRGBFlow
+from model.color_algorithm import RainbowRGB, RainbowRGBReverse
+from model.color_memo import ColorMemo
 from typing import List, Optional, Any
 from time import time_ns
 
@@ -74,8 +75,12 @@ class LEDStrip():
         """
         Render the LEDs in the strip according to the color algorithm
         """
+        # Signed length supports reversing LED order
+        signed_length = self.length if self._color_algorithm.is_reverse() else -1 * self.length
+
         for idx, led in enumerate(self.leds):
-            rgb = self._color_algorithm.evaluate(ratio, idx, self.length)
+            percent = ratio + (idx / signed_length)
+            rgb = self._color_algorithm.evaluate(percent)
             led.update_color(rgb)
 
     def update_algorithm(self, algorithm: ColorAlgorithm):
@@ -146,16 +151,16 @@ def main():
     def update_leds():
         time_diff = time_ms() - start_time_ms
         LOOP_TIME_MS = 2000
-        ratio_through_loop = (time_diff % LOOP_TIME_MS) / LOOP_TIME_MS
+        percent_through_loop = (time_diff % LOOP_TIME_MS) / LOOP_TIME_MS
 
-        right_leg.update(ratio_through_loop)
-        left_leg.update(ratio_through_loop)
-        torso.update(ratio_through_loop)
-        head.update(ratio_through_loop)
-        left_arm.update(ratio_through_loop)
-        right_arm.update(ratio_through_loop)
+        right_leg.update(percent_through_loop)
+        left_leg.update(percent_through_loop)
+        torso.update(percent_through_loop)
+        head.update(percent_through_loop)
+        left_arm.update(percent_through_loop)
+        right_arm.update(percent_through_loop)
 
-        my_canvas.itemconfig(ratio_text, text=f'Ratio: {round(ratio_through_loop * 100, 2)}%')
+        my_canvas.itemconfig(ratio_text, text=f'Percent: {round(percent_through_loop * 100, 1)}%')
 
         root.after(int(1000 / REFRESH_HZ), update_leds)
 
@@ -168,11 +173,15 @@ def main():
     torso_top = Point2D(leg_root.x, leg_root.y - TORSO_LED_COUNT * 6)
     arm_root = torso_top + (leg_root - torso_top) * 0.3
 
-    # LED strips
-    rainbow_algorithm = RainbowRGBFlow(0)
-    rainbow_algorithm_arms = RainbowRGBFlow(3 * math.pi / 6, reverse_leds=True)
-    rainbow_algorithm_torso = RainbowRGBFlow(0, reverse_leds=True)
+    # Add a memo pad for precomputed color result lookup
+    color_memo = ColorMemo()
 
+    # Coloring algorithms
+    rainbow_algorithm = RainbowRGB(0, color_memo)
+    rainbow_algorithm_arms = RainbowRGBReverse(2/3, color_memo)
+    rainbow_algorithm_torso = RainbowRGBReverse(0, color_memo)
+
+    # Make LED strips in a person-shape
     right_leg = _make_right_leg(my_canvas, leg_root, rainbow_algorithm)
     left_leg = _make_left_leg(my_canvas, leg_root, rainbow_algorithm)
     torso = _make_torso(my_canvas, leg_root, rainbow_algorithm_torso)
@@ -180,10 +189,9 @@ def main():
     right_arm = _make_right_arm(my_canvas, arm_root, rainbow_algorithm_arms)
     left_arm = _make_left_arm(my_canvas, arm_root, rainbow_algorithm_arms)
 
-    ratio_text = my_canvas.create_text(40, 10, text='Ratio: 0%', fill='white')
+    ratio_text = my_canvas.create_text(50, 10, text='Ratio: 0%', fill='white')
 
     start_time_ms = time_ms()
-
     my_canvas.pack()
     update_leds()
 
