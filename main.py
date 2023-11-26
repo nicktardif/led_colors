@@ -145,7 +145,7 @@ def _make_left_arm(canvas: Canvas, arm_root: Point2D, color_algorithm: ColorAlgo
 def main():
     def update_leds():
         time_diff = time_ms() - start_time_ms
-        LOOP_TIME_MS = 5000
+        LOOP_TIME_MS = 2000
         ratio_through_loop = (time_diff % LOOP_TIME_MS) / LOOP_TIME_MS
 
         right_leg.update(ratio_through_loop)
