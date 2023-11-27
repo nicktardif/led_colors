@@ -1,7 +1,9 @@
-from abc import ABC, abstractmethod
-from model.rgb import RGB
 import math
+from abc import ABC, abstractmethod
+
 from model.color_memo import ColorMemo
+from model.rgb import RGB
+
 
 class ColorAlgorithm(ABC):
     lookup_key: str
@@ -18,12 +20,12 @@ class ColorAlgorithm(ABC):
     def get_bucket(self, percent: float) -> int:
         return math.floor(percent * self.num_buckets)
 
+
 class RainbowRGB(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
         self._offset = offset
-        self._count = 0
         self._memo = color_memo
-        self.lookup_key = 'RainbowRGBFlow'
+        self.lookup_key = "RainbowRGBFlow"
         self.num_buckets = 50
 
     def evaluate(self, percent: float) -> RGB:
@@ -45,7 +47,43 @@ class RainbowRGB(ColorAlgorithm):
     def is_reverse(self) -> bool:
         return False
 
+
 class RainbowRGBReverse(RainbowRGB):
+    def __init__(self, offset: float, color_memo: ColorMemo):
+        super().__init__(offset, color_memo)
+
+    def is_reverse(self) -> bool:
+        return True
+
+
+class RedMove(ColorAlgorithm):
+    def __init__(self, offset: float, color_memo: ColorMemo):
+        self._offset = offset
+        self._memo = color_memo
+        self.lookup_key = "RedMove"
+        self.num_buckets = 50
+
+    def evaluate(self, percent: float) -> RGB:
+        offset_percent = (percent + self._offset) % 1.0
+        bucket = self.get_bucket(offset_percent)
+        precomputed = self._memo.get(self.lookup_key, bucket)
+        if precomputed:
+            return precomputed
+
+        a = offset_percent * 2 * math.pi
+        r = math.sin(a) * 192 + 128
+        g = 0
+        b = 0
+
+        rgb = RGB(r, g, b)
+        self._memo.set_value(self.lookup_key, bucket, rgb)
+        return rgb
+
+    def is_reverse(self) -> bool:
+        return False
+
+
+class RedMoveReverse(RedMove):
     def __init__(self, offset: float, color_memo: ColorMemo):
         super().__init__(offset, color_memo)
 

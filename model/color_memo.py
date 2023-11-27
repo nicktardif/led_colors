@@ -1,7 +1,9 @@
-from model.rgb import RGB
 from typing import Optional
 
-class ColorMemo():
+from model.rgb import RGB
+
+
+class ColorMemo:
     def __init__(self):
         self._memo = {}
 

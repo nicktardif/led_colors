@@ -1,4 +1,4 @@
-class Point2D():
+class Point2D:
     x: float
     y: float
 
@@ -14,4 +14,3 @@ class Point2D():
 
     def __mul__(self, val):
         return Point2D(self.x * val, self.y * val)
-
