@@ -3,7 +3,12 @@ from tkinter import Canvas, Tk
 
 from model.body import TORSO_LED_COUNT, Body
 from model.body_group import BodyGroup
-from model.color_algorithm import PastelRGB, PurpleGreenOrangeComet, RainbowRGB
+from model.color_algorithm import (
+    PastelRGB,
+    PastelRGB2,
+    PurpleGreenOrangeComet,
+    RainbowRGB,
+)
 from model.color_memo import ColorMemo
 from model.point2d import Point2D
 
@@ -67,6 +72,14 @@ class Main:
                 PastelRGB(0, color_memo),
                 PastelRGB(0, color_memo),
             ),
+            "pastel_rgb_2": BodyGroup(
+                PastelRGB2(0, color_memo).set_scale(1.0),
+                PastelRGB2(0, color_memo).set_reverse(True),
+                PastelRGB2(0.2, color_memo).set_reverse(True),
+                PastelRGB2(0.2, color_memo).set_reverse(True),
+                PastelRGB2(0, color_memo),
+                PastelRGB2(0, color_memo),
+            ),
             "pgo_comet_in_to_out": BodyGroup(
                 PurpleGreenOrangeComet(0, color_memo),
                 PurpleGreenOrangeComet(0, color_memo).set_scale(8),
@@ -78,7 +91,7 @@ class Main:
         }
         self.color_memo = color_memo
 
-        self.color_mode = "pgo_comet_in_to_out"
+        self.color_mode = "pastel_rgb"
         self.ratio_text = self.my_canvas.create_text(
             CANVAS_WIDTH / 2, 10, text="Ratio: 0%", fill="white", justify="left"
         )

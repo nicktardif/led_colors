@@ -115,3 +115,30 @@ class PastelRGB(ColorAlgorithm):
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)
         return rgb
+
+
+class PastelRGB2(ColorAlgorithm):
+    def __init__(self, offset: float, color_memo: ColorMemo):
+        self._offset = offset
+        self._memo = color_memo
+        self.lookup_key = "PastelRGB2"
+        self.num_buckets = 50
+        self.scale = 3.0
+        self.reverse = False
+
+    def evaluate(self, percent: float) -> RGB:
+        offset_percent = (percent + self._offset) % 1.0
+        bucket = self.get_bucket(offset_percent)
+        precomputed = self._memo.get(self.lookup_key, bucket)
+        if precomputed:
+            return precomputed
+
+        a = offset_percent * 2 * math.pi
+        r = 50 * (math.sin(a) + 1) + 105
+        g = 110 * (math.sin(a - (2 * math.pi / 3))) + 145
+        b = 80 * (math.sin(a - (4 * math.pi / 3))) + 145
+        # want to range between 145 and 255
+
+        rgb = RGB(r, g, b)
+        self._memo.set_value(self.lookup_key, bucket, rgb)
+        return rgb
