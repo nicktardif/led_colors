@@ -1,6 +1,5 @@
 import math
 from abc import ABC, abstractmethod
-from random import randint
 
 from model.color_memo import ColorMemo
 from model.rgb import RGB
@@ -9,17 +8,26 @@ from model.rgb import RGB
 class ColorAlgorithm(ABC):
     lookup_key: str
     num_buckets: int
+    scale: float
+    reverse: bool
 
     @abstractmethod
     def evaluate(self, percent: float) -> RGB:
         pass
 
-    @abstractmethod
     def is_reverse(self) -> bool:
-        pass
+        return self.reverse
 
     def get_bucket(self, percent: float) -> int:
         return math.floor(percent * self.num_buckets)
+
+    def set_scale(self, value: float):
+        self.scale = value
+        return self
+
+    def set_reverse(self, value: bool):
+        self.reverse = value
+        return self
 
 
 class RainbowRGB(ColorAlgorithm):
@@ -28,6 +36,8 @@ class RainbowRGB(ColorAlgorithm):
         self._memo = color_memo
         self.lookup_key = "RainbowRGBFlow"
         self.num_buckets = 50
+        self.scale = 1.0
+        self.reverse = False
 
     def evaluate(self, percent: float) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
@@ -45,24 +55,15 @@ class RainbowRGB(ColorAlgorithm):
         self._memo.set_value(self.lookup_key, bucket, rgb)
         return rgb
 
-    def is_reverse(self) -> bool:
-        return False
-
-
-class RainbowRGBReverse(RainbowRGB):
-    def __init__(self, offset: float, color_memo: ColorMemo):
-        super().__init__(offset, color_memo)
-
-    def is_reverse(self) -> bool:
-        return True
-
 
 class PurpleGreenOrangeComet(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
         self._offset = offset
         self._memo = color_memo
         self.lookup_key = "PurpleGreenOrangeComet"
-        self.num_buckets = 200
+        self.num_buckets = 50
+        self.scale = 1.0
+        self.reverse = False
 
     def evaluate(self, percent: float) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
@@ -88,13 +89,29 @@ class PurpleGreenOrangeComet(ColorAlgorithm):
         self._memo.set_value(self.lookup_key, bucket, rgb)
         return rgb
 
-    def is_reverse(self) -> bool:
-        return False
 
-
-class PurpleGreenOrangeCometReverse(PurpleGreenOrangeComet):
+class PastelRGB(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
-        super().__init__(offset, color_memo)
+        self._offset = offset
+        self._memo = color_memo
+        self.lookup_key = "PastelRGB"
+        self.num_buckets = 50
+        self.scale = 3.0
+        self.reverse = False
 
-    def is_reverse(self) -> bool:
-        return True
+    def evaluate(self, percent: float) -> RGB:
+        offset_percent = (percent + self._offset) % 1.0
+        bucket = self.get_bucket(offset_percent)
+        precomputed = self._memo.get(self.lookup_key, bucket)
+        if precomputed:
+            return precomputed
+
+        a = offset_percent * 2 * math.pi
+        r = 110 * (math.sin(a) + 1) + 145
+        g = 110 * (math.sin(a - (2 * math.pi / 3))) + 145
+        b = 110 * (math.sin(a - (4 * math.pi / 3))) + 145
+        # want to range between 145 and 255
+
+        rgb = RGB(r, g, b)
+        self._memo.set_value(self.lookup_key, bucket, rgb)
+        return rgb

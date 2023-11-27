@@ -3,12 +3,7 @@ from tkinter import Canvas, Tk
 
 from model.body import TORSO_LED_COUNT, Body
 from model.body_group import BodyGroup
-from model.color_algorithm import (
-    PurpleGreenOrangeComet,
-    PurpleGreenOrangeCometReverse,
-    RainbowRGB,
-    RainbowRGBReverse,
-)
+from model.color_algorithm import PastelRGB, PurpleGreenOrangeComet, RainbowRGB
 from model.color_memo import ColorMemo
 from model.point2d import Point2D
 
@@ -42,24 +37,40 @@ class Main:
         self.color_modes = {
             "rainbow_flow": BodyGroup(
                 RainbowRGB(0, color_memo),
-                RainbowRGBReverse(0, color_memo),
-                RainbowRGBReverse(2 / 3, color_memo),
-                RainbowRGBReverse(2 / 3, color_memo),
+                RainbowRGB(0, color_memo).set_reverse(True),
+                RainbowRGB(2 / 3, color_memo).set_reverse(True),
+                RainbowRGB(2 / 3, color_memo).set_reverse(True),
                 RainbowRGB(0, color_memo),
                 RainbowRGB(0, color_memo),
             ),
             "pgo_comet": BodyGroup(
                 PurpleGreenOrangeComet(0, color_memo),
-                PurpleGreenOrangeCometReverse(0, color_memo),
-                PurpleGreenOrangeCometReverse(2 / 3, color_memo),
-                PurpleGreenOrangeCometReverse(2 / 3, color_memo),
+                PurpleGreenOrangeComet(0, color_memo).set_reverse(True),
+                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
+                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
                 PurpleGreenOrangeComet(0, color_memo),
                 PurpleGreenOrangeComet(0, color_memo),
+            ),
+            "rainbow_long": BodyGroup(
+                RainbowRGB(0, color_memo),
+                RainbowRGB(0, color_memo).set_scale(3.0).set_reverse(True),
+                RainbowRGB(0.2, color_memo).set_scale(3.0).set_reverse(True),
+                RainbowRGB(0.2, color_memo).set_scale(3.0).set_reverse(True),
+                RainbowRGB(0, color_memo).set_scale(3.0),
+                RainbowRGB(0, color_memo).set_scale(3.0),
+            ),
+            "pastel_rgb": BodyGroup(
+                PastelRGB(0, color_memo).set_scale(1.0),
+                PastelRGB(0, color_memo).set_reverse(True),
+                PastelRGB(0.2, color_memo).set_reverse(True),
+                PastelRGB(0.2, color_memo).set_reverse(True),
+                PastelRGB(0, color_memo),
+                PastelRGB(0, color_memo),
             ),
         }
         self.color_memo = color_memo
 
-        self.color_mode = "pgo_comet"
+        self.color_mode = "pastel_rgb"
         self.ratio_text = self.my_canvas.create_text(
             CANVAS_WIDTH / 2, 10, text="Ratio: 0%", fill="white", justify="left"
         )
