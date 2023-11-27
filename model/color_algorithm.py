@@ -34,7 +34,7 @@ class RainbowRGB(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = "RainbowRGBFlow"
+        self.lookup_key = str(self.__class__)
         self.num_buckets = 50
         self.scale = 1.0
         self.reverse = False
@@ -60,8 +60,8 @@ class PurpleGreenOrangeComet(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = "PurpleGreenOrangeComet"
-        self.num_buckets = 50
+        self.lookup_key = str(self.__class__)
+        self.num_buckets = 200
         self.scale = 1.0
         self.reverse = False
 
@@ -76,11 +76,9 @@ class PurpleGreenOrangeComet(ColorAlgorithm):
         mod = bucket % (self.num_buckets / dot_count)
         count_per_grouping = self.num_buckets / dot_count
         mid = count_per_grouping / 2
-        intensity = max(
-            255 - (1.5 * abs(mod - mid) * (255 / (count_per_grouping / 2))), 0
-        )
+        intensity = max(255 - (mod * (255 / (count_per_grouping * 2 / 3))), 0)
 
-        a = offset_percent * 2 * math.pi + (math.pi / 3)
+        a = offset_percent * 2 * math.pi + (2 * math.pi / 3)
         r = intensity * (math.sin(a) * 192 + 128) / 255
         g = intensity * (math.sin(a - (2 * math.pi / 3)) * 192 + 128) / 255
         b = intensity * (math.sin(a - (4 * math.pi / 3)) * 192 + 128) / 255
@@ -94,7 +92,7 @@ class PastelRGB(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = "PastelRGB"
+        self.lookup_key = str(self.__class__)
         self.num_buckets = 50
         self.scale = 3.0
         self.reverse = False
@@ -121,7 +119,7 @@ class PastelRGB2(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = "PastelRGB2"
+        self.lookup_key = str(self.__class__)
         self.num_buckets = 50
         self.scale = 3.0
         self.reverse = False
@@ -137,6 +135,33 @@ class PastelRGB2(ColorAlgorithm):
         r = 50 * (math.sin(a) + 1) + 105
         g = 110 * (math.sin(a - (2 * math.pi / 3))) + 145
         b = 80 * (math.sin(a - (4 * math.pi / 3))) + 145
+        # want to range between 145 and 255
+
+        rgb = RGB(r, g, b)
+        self._memo.set_value(self.lookup_key, bucket, rgb)
+        return rgb
+
+
+class PastelRGB3(ColorAlgorithm):
+    def __init__(self, offset: float, color_memo: ColorMemo):
+        self._offset = offset
+        self._memo = color_memo
+        self.lookup_key = str(self.__class__)
+        self.num_buckets = 50
+        self.scale = 3.0
+        self.reverse = False
+
+    def evaluate(self, percent: float) -> RGB:
+        offset_percent = (percent + self._offset) % 1.0
+        bucket = self.get_bucket(offset_percent)
+        precomputed = self._memo.get(self.lookup_key, bucket)
+        if precomputed:
+            return precomputed
+
+        a = offset_percent * 2 * math.pi
+        r = 10 * (math.sin(a) + 1) + 105
+        g = 110 * (math.sin(a - (2 * math.pi / 3))) + 145
+        b = 40 * (math.sin(a - (4 * math.pi / 3))) + 145
         # want to range between 145 and 255
 
         rgb = RGB(r, g, b)

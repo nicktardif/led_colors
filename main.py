@@ -6,6 +6,7 @@ from model.body_group import BodyGroup
 from model.color_algorithm import (
     PastelRGB,
     PastelRGB2,
+    PastelRGB3,
     PurpleGreenOrangeComet,
     RainbowRGB,
 )
@@ -40,21 +41,13 @@ class Main:
 
         # Coloring algorithms
         self.color_modes = {
-            "rainbow_flow": BodyGroup(
+            "rainbow": BodyGroup(
                 RainbowRGB(0, color_memo),
                 RainbowRGB(0, color_memo).set_reverse(True),
                 RainbowRGB(2 / 3, color_memo).set_reverse(True),
                 RainbowRGB(2 / 3, color_memo).set_reverse(True),
                 RainbowRGB(0, color_memo),
                 RainbowRGB(0, color_memo),
-            ),
-            "pgo_comet": BodyGroup(
-                PurpleGreenOrangeComet(0, color_memo),
-                PurpleGreenOrangeComet(0, color_memo).set_reverse(True),
-                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
-                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
-                PurpleGreenOrangeComet(0, color_memo),
-                PurpleGreenOrangeComet(0, color_memo),
             ),
             "rainbow_long": BodyGroup(
                 RainbowRGB(0, color_memo),
@@ -80,6 +73,22 @@ class Main:
                 PastelRGB2(0, color_memo),
                 PastelRGB2(0, color_memo),
             ),
+            "pastel_rgb_3": BodyGroup(
+                PastelRGB3(0, color_memo).set_scale(1.0),
+                PastelRGB3(0, color_memo).set_reverse(True),
+                PastelRGB3(0.2, color_memo).set_reverse(True),
+                PastelRGB3(0.2, color_memo).set_reverse(True),
+                PastelRGB3(0, color_memo),
+                PastelRGB3(0, color_memo),
+            ),
+            "pgo_comet": BodyGroup(
+                PurpleGreenOrangeComet(0, color_memo),
+                PurpleGreenOrangeComet(0, color_memo).set_reverse(True),
+                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
+                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
+                PurpleGreenOrangeComet(0, color_memo),
+                PurpleGreenOrangeComet(0, color_memo),
+            ),
             "pgo_comet_in_to_out": BodyGroup(
                 PurpleGreenOrangeComet(0, color_memo),
                 PurpleGreenOrangeComet(0, color_memo).set_scale(8),
@@ -91,7 +100,7 @@ class Main:
         }
         self.color_memo = color_memo
 
-        self.color_mode = "pastel_rgb"
+        self.color_mode = "pgo_comet"
         self.ratio_text = self.my_canvas.create_text(
             CANVAS_WIDTH / 2, 10, text="Ratio: 0%", fill="white", justify="left"
         )
