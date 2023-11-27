@@ -11,3 +11,6 @@ class RGB:
         self.r = _clamp(int(r))
         self.g = _clamp(int(g))
         self.b = _clamp(int(b))
+
+    def __str__(self):
+        return f"({self.r}, {self.g}, {self.b})"

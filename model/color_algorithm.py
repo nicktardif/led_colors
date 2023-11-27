@@ -1,5 +1,6 @@
 import math
 from abc import ABC, abstractmethod
+from random import randint
 
 from model.color_memo import ColorMemo
 from model.rgb import RGB
@@ -56,12 +57,12 @@ class RainbowRGBReverse(RainbowRGB):
         return True
 
 
-class RedMove(ColorAlgorithm):
+class PurpleGreenOrangeComet(ColorAlgorithm):
     def __init__(self, offset: float, color_memo: ColorMemo):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = "RedMove"
-        self.num_buckets = 50
+        self.lookup_key = "PurpleGreenOrangeComet"
+        self.num_buckets = 200
 
     def evaluate(self, percent: float) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
@@ -70,10 +71,18 @@ class RedMove(ColorAlgorithm):
         if precomputed:
             return precomputed
 
-        a = offset_percent * 2 * math.pi
-        r = math.sin(a) * 192 + 128
-        g = 0
-        b = 0
+        dot_count = 3
+        mod = bucket % (self.num_buckets / dot_count)
+        count_per_grouping = self.num_buckets / dot_count
+        mid = count_per_grouping / 2
+        intensity = max(
+            255 - (1.5 * abs(mod - mid) * (255 / (count_per_grouping / 2))), 0
+        )
+
+        a = offset_percent * 2 * math.pi + (math.pi / 3)
+        r = intensity * (math.sin(a) * 192 + 128) / 255
+        g = intensity * (math.sin(a - (2 * math.pi / 3)) * 192 + 128) / 255
+        b = intensity * (math.sin(a - (4 * math.pi / 3)) * 192 + 128) / 255
 
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)
@@ -83,7 +92,7 @@ class RedMove(ColorAlgorithm):
         return False
 
 
-class RedMoveReverse(RedMove):
+class PurpleGreenOrangeCometReverse(PurpleGreenOrangeComet):
     def __init__(self, offset: float, color_memo: ColorMemo):
         super().__init__(offset, color_memo)
 

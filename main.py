@@ -5,6 +5,8 @@ from model.body import TORSO_LED_COUNT, Body
 from model.body_group import BodyGroup
 from model.color_algorithm import (
     ColorAlgorithm,
+    PurpleGreenOrangeComet,
+    PurpleGreenOrangeCometReverse,
     RainbowRGB,
     RainbowRGBReverse,
     RedMove,
@@ -49,17 +51,18 @@ class Main:
                 RainbowRGB(0, color_memo),
                 RainbowRGB(0, color_memo),
             ),
-            "red_move": BodyGroup(
-                RedMove(0, color_memo),
-                RedMoveReverse(0, color_memo),
-                RedMoveReverse(2 / 3, color_memo),
-                RedMoveReverse(2 / 3, color_memo),
-                RedMove(0, color_memo),
-                RedMove(0, color_memo),
+            "pgo_comet": BodyGroup(
+                PurpleGreenOrangeComet(0, color_memo),
+                PurpleGreenOrangeCometReverse(0, color_memo),
+                PurpleGreenOrangeCometReverse(2 / 3, color_memo),
+                PurpleGreenOrangeCometReverse(2 / 3, color_memo),
+                PurpleGreenOrangeComet(0, color_memo),
+                PurpleGreenOrangeComet(0, color_memo),
             ),
         }
+        self.color_memo = color_memo
 
-        self.color_mode = "rainbow_flow"
+        self.color_mode = "red_move"
         self.ratio_text = self.my_canvas.create_text(
             CANVAS_WIDTH / 2, 10, text="Ratio: 0%", fill="white", justify="left"
         )
