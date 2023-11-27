@@ -67,10 +67,18 @@ class Main:
                 PastelRGB(0, color_memo),
                 PastelRGB(0, color_memo),
             ),
+            "pgo_comet_in_to_out": BodyGroup(
+                PurpleGreenOrangeComet(0, color_memo),
+                PurpleGreenOrangeComet(0, color_memo).set_scale(8),
+                PurpleGreenOrangeComet(1 / 4, color_memo).set_scale(8),
+                PurpleGreenOrangeComet(1 / 4, color_memo).set_scale(8),
+                PurpleGreenOrangeComet(3 / 4, color_memo).set_scale(8),
+                PurpleGreenOrangeComet(3 / 4, color_memo).set_scale(8),
+            ),
         }
         self.color_memo = color_memo
 
-        self.color_mode = "pastel_rgb"
+        self.color_mode = "pgo_comet_in_to_out"
         self.ratio_text = self.my_canvas.create_text(
             CANVAS_WIDTH / 2, 10, text="Ratio: 0%", fill="white", justify="left"
         )
