@@ -1,8 +1,13 @@
 import math
 from abc import ABC, abstractmethod
+from hashlib import sha256
 
 from model.color_memo import ColorMemo
 from model.rgb import RGB
+
+
+def hash(val: str) -> str:
+    return sha256(val.encode("utf-8")).hexdigest()
 
 
 class ColorAlgorithm(ABC):
@@ -21,23 +26,21 @@ class ColorAlgorithm(ABC):
     def get_bucket(self, percent: float) -> int:
         return math.floor(percent * self.num_buckets)
 
-    def set_scale(self, value: float):
-        self.scale = value
-        return self
-
-    def set_reverse(self, value: bool):
-        self.reverse = value
-        return self
-
 
 class RainbowRGB(ColorAlgorithm):
-    def __init__(self, offset: float, color_memo: ColorMemo):
+    def __init__(
+        self,
+        offset: float,
+        color_memo: ColorMemo,
+        scale: float = 1.0,
+        reverse: bool = False,
+    ):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = str(self.__class__)
         self.num_buckets = 50
-        self.scale = 1.0
-        self.reverse = False
+        self.scale = scale
+        self.reverse = reverse
+        self.lookup_key = hash(self.__class__.__name__ + f"sc_{self.scale}")
 
     def evaluate(self, percent: float) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
@@ -57,13 +60,19 @@ class RainbowRGB(ColorAlgorithm):
 
 
 class PurpleGreenOrangeComet(ColorAlgorithm):
-    def __init__(self, offset: float, color_memo: ColorMemo):
+    def __init__(
+        self,
+        offset: float,
+        color_memo: ColorMemo,
+        scale: float = 1.0,
+        reverse: bool = False,
+    ):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = str(self.__class__)
         self.num_buckets = 200
-        self.scale = 1.0
-        self.reverse = False
+        self.scale = scale
+        self.reverse = reverse
+        self.lookup_key = hash(self.__class__.__name__ + f"sc_{self.scale}")
 
     def evaluate(self, percent: float) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
@@ -75,7 +84,6 @@ class PurpleGreenOrangeComet(ColorAlgorithm):
         dot_count = 3
         mod = bucket % (self.num_buckets / dot_count)
         count_per_grouping = self.num_buckets / dot_count
-        mid = count_per_grouping / 2
         intensity = max(255 - (mod * (255 / (count_per_grouping * 2 / 3))), 0)
 
         a = offset_percent * 2 * math.pi + (2 * math.pi / 3)
@@ -89,13 +97,40 @@ class PurpleGreenOrangeComet(ColorAlgorithm):
 
 
 class PastelRGB(ColorAlgorithm):
-    def __init__(self, offset: float, color_memo: ColorMemo):
+    def __init__(
+        self,
+        offset: float,
+        color_memo: ColorMemo,
+        red_scalar: float = 110,
+        red_offset: float = 145,
+        green_scalar: float = 110,
+        green_offset: float = 145,
+        blue_scalar: float = 110,
+        blue_offset: float = 145,
+        scale: float = 1.0,
+        reverse=False,
+    ):
         self._offset = offset
         self._memo = color_memo
-        self.lookup_key = str(self.__class__)
+        self._red_scalar = red_scalar
+        self._red_offset = red_offset
+        self._green_scalar = green_scalar
+        self._green_offset = green_offset
+        self._blue_scalar = blue_scalar
+        self._blue_offset = blue_offset
+        self.scale = scale
+        self.lookup_key = hash(
+            self.__class__.__name__
+            + f"rs_{red_scalar}"
+            + f"ro_{red_offset}"
+            + f"gs_{green_scalar}"
+            + f"go_{green_offset}"
+            + f"bs_{blue_scalar}"
+            + f"bo_{blue_offset}"
+            + f"sc_{self.scale}"
+        )
         self.num_buckets = 50
-        self.scale = 3.0
-        self.reverse = False
+        self.reverse = reverse
 
     def evaluate(self, percent: float) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
@@ -105,64 +140,9 @@ class PastelRGB(ColorAlgorithm):
             return precomputed
 
         a = offset_percent * 2 * math.pi
-        r = 110 * (math.sin(a) + 1) + 145
-        g = 110 * (math.sin(a - (2 * math.pi / 3))) + 145
-        b = 110 * (math.sin(a - (4 * math.pi / 3))) + 145
-        # want to range between 145 and 255
-
-        rgb = RGB(r, g, b)
-        self._memo.set_value(self.lookup_key, bucket, rgb)
-        return rgb
-
-
-class PastelRGB2(ColorAlgorithm):
-    def __init__(self, offset: float, color_memo: ColorMemo):
-        self._offset = offset
-        self._memo = color_memo
-        self.lookup_key = str(self.__class__)
-        self.num_buckets = 50
-        self.scale = 3.0
-        self.reverse = False
-
-    def evaluate(self, percent: float) -> RGB:
-        offset_percent = (percent + self._offset) % 1.0
-        bucket = self.get_bucket(offset_percent)
-        precomputed = self._memo.get(self.lookup_key, bucket)
-        if precomputed:
-            return precomputed
-
-        a = offset_percent * 2 * math.pi
-        r = 50 * (math.sin(a) + 1) + 105
-        g = 110 * (math.sin(a - (2 * math.pi / 3))) + 145
-        b = 80 * (math.sin(a - (4 * math.pi / 3))) + 145
-        # want to range between 145 and 255
-
-        rgb = RGB(r, g, b)
-        self._memo.set_value(self.lookup_key, bucket, rgb)
-        return rgb
-
-
-class PastelRGB3(ColorAlgorithm):
-    def __init__(self, offset: float, color_memo: ColorMemo):
-        self._offset = offset
-        self._memo = color_memo
-        self.lookup_key = str(self.__class__)
-        self.num_buckets = 50
-        self.scale = 3.0
-        self.reverse = False
-
-    def evaluate(self, percent: float) -> RGB:
-        offset_percent = (percent + self._offset) % 1.0
-        bucket = self.get_bucket(offset_percent)
-        precomputed = self._memo.get(self.lookup_key, bucket)
-        if precomputed:
-            return precomputed
-
-        a = offset_percent * 2 * math.pi
-        r = 10 * (math.sin(a) + 1) + 105
-        g = 110 * (math.sin(a - (2 * math.pi / 3))) + 145
-        b = 40 * (math.sin(a - (4 * math.pi / 3))) + 145
-        # want to range between 145 and 255
+        r = self._red_scalar * (math.sin(a) + 1) + self._red_offset
+        g = self._green_scalar * (math.sin(a - (2 * math.pi / 3))) + self._green_offset
+        b = self._blue_scalar * (math.sin(a - (4 * math.pi / 3))) + self._blue_offset
 
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)

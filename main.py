@@ -3,13 +3,7 @@ from tkinter import Canvas, Tk
 
 from model.body import TORSO_LED_COUNT, Body
 from model.body_group import BodyGroup
-from model.color_algorithm import (
-    PastelRGB,
-    PastelRGB2,
-    PastelRGB3,
-    PurpleGreenOrangeComet,
-    RainbowRGB,
-)
+from model.color_algorithm import PastelRGB, PurpleGreenOrangeComet, RainbowRGB
 from model.color_memo import ColorMemo
 from model.point2d import Point2D
 
@@ -43,59 +37,71 @@ class Main:
         self.color_modes = {
             "rainbow": BodyGroup(
                 RainbowRGB(0, color_memo),
-                RainbowRGB(0, color_memo).set_reverse(True),
-                RainbowRGB(2 / 3, color_memo).set_reverse(True),
-                RainbowRGB(2 / 3, color_memo).set_reverse(True),
+                RainbowRGB(0, color_memo, reverse=True),
+                RainbowRGB(2 / 3, color_memo, reverse=True),
+                RainbowRGB(2 / 3, color_memo, reverse=True),
                 RainbowRGB(0, color_memo),
                 RainbowRGB(0, color_memo),
             ),
             "rainbow_long": BodyGroup(
                 RainbowRGB(0, color_memo),
-                RainbowRGB(0, color_memo).set_scale(3.0).set_reverse(True),
-                RainbowRGB(0.2, color_memo).set_scale(3.0).set_reverse(True),
-                RainbowRGB(0.2, color_memo).set_scale(3.0).set_reverse(True),
-                RainbowRGB(0, color_memo).set_scale(3.0),
-                RainbowRGB(0, color_memo).set_scale(3.0),
+                RainbowRGB(0, color_memo, scale=3.0, reverse=True),
+                RainbowRGB(0.2, color_memo, scale=3.0, reverse=True),
+                RainbowRGB(0.2, color_memo, scale=3.0, reverse=True),
+                RainbowRGB(0, color_memo, scale=3.0),
+                RainbowRGB(0, color_memo, scale=3.0),
             ),
             "pastel_rgb": BodyGroup(
-                PastelRGB(0, color_memo).set_scale(1.0),
-                PastelRGB(0, color_memo).set_reverse(True),
-                PastelRGB(0.2, color_memo).set_reverse(True),
-                PastelRGB(0.2, color_memo).set_reverse(True),
-                PastelRGB(0, color_memo),
-                PastelRGB(0, color_memo),
+                PastelRGB(0, color_memo, scale=1.0),
+                PastelRGB(0, color_memo, scale=3.0, reverse=True),
+                PastelRGB(0.2, color_memo, scale=3.0, reverse=True),
+                PastelRGB(0.2, color_memo, scale=3.0, reverse=True),
+                PastelRGB(0, color_memo, scale=3.0),
+                PastelRGB(0, color_memo, scale=3.0),
             ),
             "pastel_rgb_2": BodyGroup(
-                PastelRGB2(0, color_memo).set_scale(1.0),
-                PastelRGB2(0, color_memo).set_reverse(True),
-                PastelRGB2(0.2, color_memo).set_reverse(True),
-                PastelRGB2(0.2, color_memo).set_reverse(True),
-                PastelRGB2(0, color_memo),
-                PastelRGB2(0, color_memo),
+                PastelRGB(0, color_memo, 50, 105, 110, 145, 80, 145, scale=1.0),
+                PastelRGB(
+                    0, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0, reverse=True
+                ),
+                PastelRGB(
+                    0.2, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0, reverse=True
+                ),
+                PastelRGB(
+                    0.2, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0, reverse=True
+                ),
+                PastelRGB(0, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0),
+                PastelRGB(0, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0),
             ),
             "pastel_rgb_3": BodyGroup(
-                PastelRGB3(0, color_memo).set_scale(1.0),
-                PastelRGB3(0, color_memo).set_reverse(True),
-                PastelRGB3(0.2, color_memo).set_reverse(True),
-                PastelRGB3(0.2, color_memo).set_reverse(True),
-                PastelRGB3(0, color_memo),
-                PastelRGB3(0, color_memo),
+                PastelRGB(0, color_memo, 10, 105, 110, 145, 40, 145, scale=1.0),
+                PastelRGB(
+                    0, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0, reverse=True
+                ),
+                PastelRGB(
+                    0.2, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0, reverse=True
+                ),
+                PastelRGB(
+                    0.2, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0, reverse=True
+                ),
+                PastelRGB(0, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0),
+                PastelRGB(0, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0),
             ),
             "pgo_comet": BodyGroup(
                 PurpleGreenOrangeComet(0, color_memo),
-                PurpleGreenOrangeComet(0, color_memo).set_reverse(True),
-                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
-                PurpleGreenOrangeComet(2 / 3, color_memo).set_reverse(True),
+                PurpleGreenOrangeComet(0, color_memo, reverse=True),
+                PurpleGreenOrangeComet(2 / 3, color_memo, reverse=True),
+                PurpleGreenOrangeComet(2 / 3, color_memo, reverse=True),
                 PurpleGreenOrangeComet(0, color_memo),
                 PurpleGreenOrangeComet(0, color_memo),
             ),
             "pgo_comet_in_to_out": BodyGroup(
                 PurpleGreenOrangeComet(0, color_memo),
-                PurpleGreenOrangeComet(0, color_memo).set_scale(8),
-                PurpleGreenOrangeComet(1 / 4, color_memo).set_scale(8),
-                PurpleGreenOrangeComet(1 / 4, color_memo).set_scale(8),
-                PurpleGreenOrangeComet(3 / 4, color_memo).set_scale(8),
-                PurpleGreenOrangeComet(3 / 4, color_memo).set_scale(8),
+                PurpleGreenOrangeComet(0, color_memo, scale=8),
+                PurpleGreenOrangeComet(1 / 4, color_memo, scale=8),
+                PurpleGreenOrangeComet(1 / 4, color_memo, scale=8),
+                PurpleGreenOrangeComet(3 / 4, color_memo, scale=8),
+                PurpleGreenOrangeComet(3 / 4, color_memo, scale=8),
             ),
         }
         self.color_memo = color_memo
@@ -148,10 +154,7 @@ class Main:
     def leftKeyPress(self, _):
         keys = list(self.color_modes.keys())
         current_idx = keys.index(self.color_mode)
-        if current_idx == 0:
-            new_idx = len(keys) - 1
-        else:
-            new_idx = current_idx - 1
+        new_idx = len(keys) - 1 if current_idx == 0 else current_idx - 1
 
         color_mode = keys[new_idx]
         self._set_color_mode(color_mode)
@@ -159,10 +162,7 @@ class Main:
     def rightKeyPress(self, _):
         keys = list(self.color_modes.keys())
         current_idx = keys.index(self.color_mode)
-        if current_idx + 1 == len(keys):
-            new_idx = 0
-        else:
-            new_idx = current_idx + 1
+        new_idx = 0 if current_idx + 1 == len(keys) else current_idx + 1
 
         color_mode = keys[new_idx]
         self._set_color_mode(color_mode)
