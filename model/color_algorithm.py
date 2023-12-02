@@ -59,20 +59,26 @@ class RainbowRGB(ColorAlgorithm):
         return rgb
 
 
-class PurpleGreenOrangeComet(ColorAlgorithm):
+class Comet(ColorAlgorithm):
     def __init__(
         self,
         offset: float,
         color_memo: ColorMemo,
         scale: float = 1.0,
         reverse: bool = False,
+        color_offset: float = 0.0,
     ):
         self._offset = offset
         self._memo = color_memo
         self.num_buckets = 200
         self.scale = scale
         self.reverse = reverse
-        self.lookup_key = hash(self.__class__.__name__ + f"sc_{self.scale}")
+        self._color_offset = color_offset
+        self.lookup_key = hash(
+            self.__class__.__name__
+            + f"sc_{self.scale}"
+            + f"co_{str(self._color_offset)}"
+        )
 
     def evaluate(self, percent: float) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
@@ -86,7 +92,7 @@ class PurpleGreenOrangeComet(ColorAlgorithm):
         count_per_grouping = self.num_buckets / dot_count
         intensity = max(255 - (mod * (255 / (count_per_grouping * 2 / 3))), 0)
 
-        a = offset_percent * 2 * math.pi + (2 * math.pi / 3)
+        a = offset_percent * 2 * math.pi + self._color_offset
         r = intensity * (math.sin(a) * 192 + 128) / 255
         g = intensity * (math.sin(a - (2 * math.pi / 3)) * 192 + 128) / 255
         b = intensity * (math.sin(a - (4 * math.pi / 3)) * 192 + 128) / 255
@@ -94,6 +100,18 @@ class PurpleGreenOrangeComet(ColorAlgorithm):
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)
         return rgb
+
+
+class PurpleGreenOrangeComet(Comet):
+    def __init__(
+        self,
+        offset: float,
+        color_memo: ColorMemo,
+        scale: float = 1.0,
+        reverse: bool = False,
+    ):
+        pgo_color_offset = 2 * math.pi / 3
+        super().__init__(offset, color_memo, scale, reverse, pgo_color_offset)
 
 
 class PastelRGB(ColorAlgorithm):
