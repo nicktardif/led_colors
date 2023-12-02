@@ -5,6 +5,9 @@ from hashlib import sha256
 from model.color_memo import ColorMemo
 from model.rgb import RGB
 
+RGB_SCALAR: int = 192
+RGB_OFFSET: int = 128
+
 
 def hash(val: str) -> str:
     return sha256(val.encode("utf-8")).hexdigest()
@@ -50,9 +53,9 @@ class RainbowRGB(ColorAlgorithm):
             return precomputed
 
         a = offset_percent * 2 * math.pi
-        r = math.sin(a) * 192 + 128
-        g = math.sin(a - (2 * math.pi / 3)) * 192 + 128
-        b = math.sin(a - (4 * math.pi / 3)) * 192 + 128
+        r = math.sin(a) * RGB_SCALAR + RGB_OFFSET
+        g = math.sin(a - (2 * math.pi / 3)) * RGB_SCALAR + RGB_OFFSET
+        b = math.sin(a - (4 * math.pi / 3)) * RGB_SCALAR + RGB_OFFSET
 
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)
@@ -88,14 +91,15 @@ class Comet(ColorAlgorithm):
             return precomputed
 
         dot_count = 3
-        mod = bucket % (self.num_buckets / dot_count)
         count_per_grouping = self.num_buckets / dot_count
-        intensity = max(255 - (mod * (255 / (count_per_grouping * 2 / 3))), 0)
+        dropoff_factor = 1 / (count_per_grouping * 2 / 3)
+        mod = bucket % (self.num_buckets / dot_count)
+        intensity = max(1 - (mod * dropoff_factor), 0)
 
         a = offset_percent * 2 * math.pi + self._color_offset
-        r = intensity * (math.sin(a) * 192 + 128) / 255
-        g = intensity * (math.sin(a - (2 * math.pi / 3)) * 192 + 128) / 255
-        b = intensity * (math.sin(a - (4 * math.pi / 3)) * 192 + 128) / 255
+        r = intensity * (math.sin(a) * RGB_SCALAR + RGB_OFFSET)
+        g = intensity * (math.sin(a - (2 * math.pi / 3)) * RGB_SCALAR + RGB_OFFSET)
+        b = intensity * (math.sin(a - (4 * math.pi / 3)) * RGB_SCALAR + RGB_OFFSET)
 
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)

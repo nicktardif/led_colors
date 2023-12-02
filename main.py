@@ -1,9 +1,15 @@
 from time import time_ns
 from tkinter import Canvas, Tk
+from typing import List
 
 from model.body import TORSO_LED_COUNT, Body
 from model.body_group import BodyGroup
-from model.color_algorithm import PastelRGB, PurpleGreenOrangeComet, RainbowRGB
+from model.color_algorithm import (
+    ColorAlgorithm,
+    PastelRGB,
+    PurpleGreenOrangeComet,
+    RainbowRGB,
+)
 from model.color_memo import ColorMemo
 from model.point2d import Point2D
 
@@ -34,59 +40,53 @@ class Main:
         color_memo = ColorMemo()
 
         # Coloring algorithms
+        rainbow_rgb_no_offset = RainbowRGB(0, color_memo)
+        rainbow_rgb_arm_reverse = RainbowRGB(2 / 3, color_memo, reverse=True)
+        rainbow_rgb_reverse_no_offset = RainbowRGB(0, color_memo, reverse=True)
+
+        rainbow_rgb_scale3 = RainbowRGB(0, color_memo, scale=3.0)
+        rainbow_rgb_scale3_reverse = RainbowRGB(0, color_memo, scale=3.0, reverse=True)
+        rainbow_rgb_scale3_arm_reverse = RainbowRGB(
+            0.2, color_memo, scale=3.0, reverse=True
+        )
+
+        pastel_rgb_1_values = []  # default settings
+        pastel_rgb_2_values = [50, 105, 110, 145, 80, 145]
+        pastel_rgb_3_values = [10, 105, 110, 145, 40, 145]
+
+        def _pastel_body(rgb_config: List[int]) -> List[ColorAlgorithm]:
+            """
+            Takes a list of pastel config values and outputs the color algorithms for a pastel body
+            """
+            return [
+                PastelRGB(0, color_memo, *rgb_config, scale=1.0),
+                PastelRGB(0, color_memo, *rgb_config, scale=3.0, reverse=True),
+                PastelRGB(0.2, color_memo, *rgb_config, scale=3.0, reverse=True),
+                PastelRGB(0.2, color_memo, *rgb_config, scale=3.0, reverse=True),
+                PastelRGB(0, color_memo, *rgb_config, scale=3.0),
+                PastelRGB(0, color_memo, *rgb_config, scale=3.0),
+            ]
+
         self.color_modes = {
             "rainbow": BodyGroup(
-                RainbowRGB(0, color_memo),
-                RainbowRGB(0, color_memo, reverse=True),
-                RainbowRGB(2 / 3, color_memo, reverse=True),
-                RainbowRGB(2 / 3, color_memo, reverse=True),
-                RainbowRGB(0, color_memo),
-                RainbowRGB(0, color_memo),
+                rainbow_rgb_no_offset,
+                rainbow_rgb_reverse_no_offset,
+                rainbow_rgb_arm_reverse,
+                rainbow_rgb_arm_reverse,
+                rainbow_rgb_no_offset,
+                rainbow_rgb_no_offset,
             ),
             "rainbow_long": BodyGroup(
-                RainbowRGB(0, color_memo),
-                RainbowRGB(0, color_memo, scale=3.0, reverse=True),
-                RainbowRGB(0.2, color_memo, scale=3.0, reverse=True),
-                RainbowRGB(0.2, color_memo, scale=3.0, reverse=True),
-                RainbowRGB(0, color_memo, scale=3.0),
-                RainbowRGB(0, color_memo, scale=3.0),
+                rainbow_rgb_no_offset,
+                rainbow_rgb_scale3_reverse,
+                rainbow_rgb_scale3_arm_reverse,
+                rainbow_rgb_scale3_arm_reverse,
+                rainbow_rgb_scale3,
+                rainbow_rgb_scale3,
             ),
-            "pastel_rgb": BodyGroup(
-                PastelRGB(0, color_memo, scale=1.0),
-                PastelRGB(0, color_memo, scale=3.0, reverse=True),
-                PastelRGB(0.2, color_memo, scale=3.0, reverse=True),
-                PastelRGB(0.2, color_memo, scale=3.0, reverse=True),
-                PastelRGB(0, color_memo, scale=3.0),
-                PastelRGB(0, color_memo, scale=3.0),
-            ),
-            "pastel_rgb_2": BodyGroup(
-                PastelRGB(0, color_memo, 50, 105, 110, 145, 80, 145, scale=1.0),
-                PastelRGB(
-                    0, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0, reverse=True
-                ),
-                PastelRGB(
-                    0.2, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0, reverse=True
-                ),
-                PastelRGB(
-                    0.2, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0, reverse=True
-                ),
-                PastelRGB(0, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0),
-                PastelRGB(0, color_memo, 50, 105, 110, 145, 80, 145, scale=3.0),
-            ),
-            "pastel_rgb_3": BodyGroup(
-                PastelRGB(0, color_memo, 10, 105, 110, 145, 40, 145, scale=1.0),
-                PastelRGB(
-                    0, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0, reverse=True
-                ),
-                PastelRGB(
-                    0.2, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0, reverse=True
-                ),
-                PastelRGB(
-                    0.2, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0, reverse=True
-                ),
-                PastelRGB(0, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0),
-                PastelRGB(0, color_memo, 10, 105, 110, 145, 40, 145, scale=3.0),
-            ),
+            "pastel_rgb": BodyGroup(*_pastel_body(pastel_rgb_1_values)),
+            "pastel_rgb_2": BodyGroup(*_pastel_body(pastel_rgb_2_values)),
+            "pastel_rgb_3": BodyGroup(*_pastel_body(pastel_rgb_3_values)),
             "pgo_comet": BodyGroup(
                 PurpleGreenOrangeComet(0, color_memo),
                 PurpleGreenOrangeComet(0, color_memo, reverse=True),
