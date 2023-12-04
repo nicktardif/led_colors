@@ -73,8 +73,11 @@ class LEDStrip:
         )
 
         for idx, led in enumerate(self.leds):
-            percent = ratio + (idx / (signed_length * self._color_algorithm.scale))
-            rgb = self._color_algorithm.evaluate(percent)
+            if self._color_algorithm.is_linear():
+                percent = ratio + (idx / (signed_length * self._color_algorithm.scale))
+            else:
+                percent = ratio * self._color_algorithm.scale
+            rgb = self._color_algorithm.evaluate(percent, idx, self.length)
             led.update_color(rgb)
 
     def update_algorithm(self, algorithm: ColorAlgorithm):

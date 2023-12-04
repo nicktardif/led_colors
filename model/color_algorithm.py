@@ -20,7 +20,12 @@ class ColorAlgorithm(ABC):
     reverse: bool
 
     @abstractmethod
-    def evaluate(self, percent: float) -> RGB:
+    def evaluate(self, percent: float, idx: int, total_leds: int) -> RGB:
+        pass
+
+    @abstractmethod
+    def is_linear(self) -> bool:
+        # Return if the color algorithm can be represented as a 1D array, purely linear motion
         pass
 
     def is_reverse(self) -> bool:
@@ -28,6 +33,9 @@ class ColorAlgorithm(ABC):
 
     def get_bucket(self, percent: float) -> int:
         return math.floor(percent * self.num_buckets)
+
+    def set_adjustment_level(self, level: int) -> None:
+        pass
 
 
 class RainbowRGB(ColorAlgorithm):
@@ -43,11 +51,15 @@ class RainbowRGB(ColorAlgorithm):
         self.num_buckets = 50
         self.scale = scale
         self.reverse = reverse
-        self.lookup_key = hash(self.__class__.__name__ + f"sc_{self.scale}")
+        self.lookup_key = self._calculate_lookup_key()
 
-    def evaluate(self, percent: float) -> RGB:
+    def _calculate_lookup_key(self) -> str:
+        return hash(self.__class__.__name__ + f"sc_{self.scale}")
+
+    def evaluate(self, percent: float, _: int, __: int) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
         bucket = self.get_bucket(offset_percent)
+
         precomputed = self._memo.get(self.lookup_key, bucket)
         if precomputed:
             return precomputed
@@ -60,6 +72,9 @@ class RainbowRGB(ColorAlgorithm):
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)
         return rgb
+
+    def is_linear(self):
+        return True
 
 
 class Comet(ColorAlgorithm):
@@ -77,13 +92,22 @@ class Comet(ColorAlgorithm):
         self.scale = scale
         self.reverse = reverse
         self._color_offset = color_offset
-        self.lookup_key = hash(
+        self.adjustment_level = 0
+        self.lookup_key = self._calculate_lookup_key()
+
+    def _calculate_lookup_key(self) -> str:
+        return hash(
             self.__class__.__name__
             + f"sc_{self.scale}"
             + f"co_{str(self._color_offset)}"
+            + f"al_{str(self.adjustment_level)}"
         )
 
-    def evaluate(self, percent: float) -> RGB:
+    def set_adjustment_level(self, level: int) -> None:
+        self.adjustment_level = level
+        self.lookup_key = self._calculate_lookup_key()
+
+    def evaluate(self, percent: float, _: int, __: int) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
         bucket = self.get_bucket(offset_percent)
         precomputed = self._memo.get(self.lookup_key, bucket)
@@ -96,7 +120,11 @@ class Comet(ColorAlgorithm):
         mod = bucket % (self.num_buckets / dot_count)
         intensity = max(1 - (mod * dropoff_factor), 0)
 
-        a = offset_percent * 2 * math.pi + self._color_offset
+        a = (
+            offset_percent * 2 * math.pi
+            + self._color_offset
+            + (self.adjustment_level / 30.0)
+        )
         r = intensity * (math.sin(a) * RGB_SCALAR + RGB_OFFSET)
         g = intensity * (math.sin(a - (2 * math.pi / 3)) * RGB_SCALAR + RGB_OFFSET)
         b = intensity * (math.sin(a - (4 * math.pi / 3)) * RGB_SCALAR + RGB_OFFSET)
@@ -104,6 +132,9 @@ class Comet(ColorAlgorithm):
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)
         return rgb
+
+    def is_linear(self):
+        return True
 
 
 class PurpleGreenOrangeComet(Comet):
@@ -154,7 +185,7 @@ class PastelRGB(ColorAlgorithm):
         self.num_buckets = 50
         self.reverse = reverse
 
-    def evaluate(self, percent: float) -> RGB:
+    def evaluate(self, percent: float, _: int, __: int) -> RGB:
         offset_percent = (percent + self._offset) % 1.0
         bucket = self.get_bucket(offset_percent)
         precomputed = self._memo.get(self.lookup_key, bucket)
@@ -169,3 +200,84 @@ class PastelRGB(ColorAlgorithm):
         rgb = RGB(r, g, b)
         self._memo.set_value(self.lookup_key, bucket, rgb)
         return rgb
+
+    def is_linear(self):
+        return True
+
+
+class Yoyo(ColorAlgorithm):
+    def __init__(
+        self,
+        offset: float,
+        color_memo: ColorMemo,
+        scale: float = 1.0,
+        reverse: bool = False,
+        color_offset: float = 0.0,
+    ):
+        self._offset = offset
+        self._memo = color_memo
+        self.num_buckets = 400
+        self.scale = scale
+        self.reverse = reverse
+        self._color_offset = color_offset
+        self.adjustment_level = 0
+        self.lookup_key = self._calculate_lookup_key()
+
+    def _calculate_lookup_key(self) -> str:
+        return hash(
+            self.__class__.__name__
+            + f"sc_{self.scale}"
+            + f"co_{str(self._color_offset)}"
+            + f"al_{str(self.adjustment_level)}"
+        )
+
+    def set_adjustment_level(self, level: int) -> None:
+        self.adjustment_level = level
+        self.lookup_key = self._calculate_lookup_key()
+
+    def evaluate(self, percent: float, idx: int, total_count: int) -> RGB:
+        # 2.0 is for the yoyo effect
+        offset_percent = abs((2 * percent + self._offset) % 2.0)
+        if offset_percent >= 1.0:
+            offset_percent = 2 - offset_percent
+        bucket = self.get_bucket(offset_percent)
+        full_key = f"{idx}_{bucket}"
+        precomputed = self._memo.get(self.lookup_key, full_key)
+        if precomputed:
+            return precomputed
+
+        # less dropoff in the middle
+        tail_length_percent = math.sin(offset_percent * math.pi) / 4.0
+        tail_length_count = tail_length_percent * total_count
+
+        intensity = 0
+        head_idx = math.floor(offset_percent * total_count)
+        if head_idx - tail_length_count <= idx and idx <= head_idx:
+            intensity = 1
+
+        # for each bucket, use the tail length to determine if the specific idx should be displayed
+        # dropoff_factor = 1 / (count_per_grouping * diff)
+
+        # intensity = max(1 - (bucket * dropoff_factor), 0)
+        # intensity = diff
+
+        # white
+        r = intensity * 255
+        g = intensity * 255
+        b = intensity * 255
+
+        # highlight head in red
+        # if idx == head_idx:
+        #     r = 255
+        #     g = 0
+        #     b = 0
+        #     # print(
+        #     #     f"offset_percent: {round(offset_percent, 2)}, tail_length_percent: {round(tail_length_percent, 2)}, tail length count: {round(tail_length_count, 2)}"
+        #     # )
+
+        rgb = RGB(r, g, b)
+        self._memo.set_value(self.lookup_key, full_key, rgb)
+        return rgb
+
+    def is_linear(self):
+        return False

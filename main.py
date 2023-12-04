@@ -9,6 +9,7 @@ from model.color_algorithm import (
     PastelRGB,
     PurpleGreenOrangeComet,
     RainbowRGB,
+    Yoyo,
 )
 from model.color_memo import ColorMemo
 from model.point2d import Point2D
@@ -103,17 +104,33 @@ class Main:
                 PurpleGreenOrangeComet(3 / 4, color_memo, scale=8),
                 PurpleGreenOrangeComet(3 / 4, color_memo, scale=8),
             ),
+            "yoyo": BodyGroup(
+                Yoyo(0, color_memo),
+                Yoyo(0, color_memo),
+                Yoyo(0, color_memo),
+                Yoyo(0, color_memo),
+                Yoyo(0, color_memo),
+                Yoyo(0, color_memo),
+            ),
         }
         self.color_memo = color_memo
 
-        self.color_mode = "pgo_comet"
+        self.color_mode = "yoyo"
         self.ratio_text = self.my_canvas.create_text(
             CANVAS_WIDTH / 2, 10, text="Ratio: 0%", fill="white", justify="left"
         )
+        self.adjustment_level = 0
         self.mode_text = self.my_canvas.create_text(
             CANVAS_WIDTH / 2,
             30,
             text=f"Mode: {self.color_mode}",
+            fill="white",
+            justify="left",
+        )
+        self.adjustment_text = self.my_canvas.create_text(
+            CANVAS_WIDTH / 2,
+            50,
+            text=f"Adjustment: {self.adjustment_level}",
             fill="white",
             justify="left",
         )
@@ -122,6 +139,8 @@ class Main:
 
         self.root.bind("<Right>", lambda e: self.rightKeyPress(e))
         self.root.bind("<Left>", lambda e: self.leftKeyPress(e))
+        self.root.bind("<Up>", lambda e: self.upKeyPress(e))
+        self.root.bind("<Down>", lambda e: self.downKeyPress(e))
         self.root.bind("<Escape>", lambda e: self.escapeKeyPress(e))
 
         self.start_time_ms = time_ms()
@@ -167,6 +186,12 @@ class Main:
         color_mode = keys[new_idx]
         self._set_color_mode(color_mode)
 
+    def upKeyPress(self, _):
+        self._set_adjustment_level(self.adjustment_level + 1)
+
+    def downKeyPress(self, _):
+        self._set_adjustment_level(self.adjustment_level - 1)
+
     def _set_color_mode(self, color_mode: str):
         self.color_mode = color_mode
         body_group: BodyGroup = self.color_modes[color_mode]
@@ -179,6 +204,20 @@ class Main:
         self.body.left_leg.set_color_algorithm(body_group.left_leg)
 
         self.my_canvas.itemconfig(self.mode_text, text=f"Mode: {self.color_mode}")
+
+    def _set_adjustment_level(self, adjustment_level: int):
+        self.adjustment_level = adjustment_level
+
+        self.body.head._color_algorithm.set_adjustment_level(self.adjustment_level)
+        self.body.torso._color_algorithm.set_adjustment_level(self.adjustment_level)
+        self.body.right_arm._color_algorithm.set_adjustment_level(self.adjustment_level)
+        self.body.left_arm._color_algorithm.set_adjustment_level(self.adjustment_level)
+        self.body.right_leg._color_algorithm.set_adjustment_level(self.adjustment_level)
+        self.body.left_leg._color_algorithm.set_adjustment_level(self.adjustment_level)
+
+        self.my_canvas.itemconfig(
+            self.adjustment_text, text=f"Adjustment: {self.adjustment_level}"
+        )
 
 
 def main():
