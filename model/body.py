@@ -76,7 +76,7 @@ class Body:
 
     def _make_right_arm(self) -> LEDStrip:
         led_strip = LEDStrip()
-        for i in range(0, ARM_LED_COUNT):
+        for i in range(1, ARM_LED_COUNT + 1):
             x = self._arm_root.x + X_DISTANCE * i
             y = self._arm_root.y - 2 * i
             led_strip.add_led(LED(x, y, 128, 0, 128, self._canvas))
@@ -84,7 +84,7 @@ class Body:
 
     def _make_left_arm(self) -> LEDStrip:
         led_strip = LEDStrip()
-        for i in range(0, ARM_LED_COUNT):
+        for i in range(1, ARM_LED_COUNT + 1):
             x = self._arm_root.x - X_DISTANCE * i
             y = self._arm_root.y - 2 * i
             led_strip.add_led(LED(x, y, 128, 0, 128, self._canvas))

@@ -216,7 +216,7 @@ class Yoyo(ColorAlgorithm):
     ):
         self._offset = offset
         self._memo = color_memo
-        self.num_buckets = 400
+        self.num_buckets = 200
         self.scale = scale
         self.reverse = reverse
         self._color_offset = color_offset
@@ -237,10 +237,14 @@ class Yoyo(ColorAlgorithm):
 
     def evaluate(self, percent: float, idx: int, total_count: int) -> RGB:
         # 2.0 is for the yoyo effect
-        offset_percent = abs((2 * percent + self._offset) % 2.0)
+        original_offset_percent = percent + self._offset
+        offset_percent = abs((2 * original_offset_percent) % 2.0)
+        reverse = False
         if offset_percent >= 1.0:
             offset_percent = 2 - offset_percent
-        bucket = self.get_bucket(offset_percent)
+            reverse = True
+
+        bucket = self.get_bucket(original_offset_percent)
         full_key = f"{idx}_{bucket}"
         precomputed = self._memo.get(self.lookup_key, full_key)
         if precomputed:
@@ -251,9 +255,14 @@ class Yoyo(ColorAlgorithm):
         tail_length_count = tail_length_percent * total_count
 
         intensity = 0
-        head_idx = math.floor(offset_percent * total_count)
-        if head_idx - tail_length_count <= idx and idx <= head_idx:
-            intensity = 1
+        if reverse:
+            head_idx = math.floor(offset_percent * total_count)
+            if head_idx + tail_length_count >= idx and idx >= head_idx:
+                intensity = 1
+        else:
+            head_idx = math.floor(offset_percent * total_count)
+            if head_idx - tail_length_count <= idx and idx <= head_idx:
+                intensity = 1
 
         # for each bucket, use the tail length to determine if the specific idx should be displayed
         # dropoff_factor = 1 / (count_per_grouping * diff)
