@@ -1,0 +1,8 @@
+[tool.piku]
+project = "elmo"
+piku = "0.2.4"
+circuit-python = "9"
+
+[tool.piku.dependencies]
+adafruit_fancyled = "latest"
+neopixel = "latest"

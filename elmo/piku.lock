@@ -1,0 +1,72 @@
+{
+  "adafruit_fancyled": {
+    "package": "adafruit_fancyled",
+    "version": "1.4.19",
+    "bundle": {
+      "name": "adafruit",
+      "build": "20231210",
+      "target": "9",
+      "url": "https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-9.x-mpy-20231210.zip"
+    },
+    "path": "lib/adafruit_fancyled",
+    "hash": null,
+    "dependencies": {},
+    "raw": {
+      "dependencies": [],
+      "external_dependencies": [],
+      "package": true,
+      "path": "lib/adafruit_fancyled",
+      "pypi_name": "adafruit-circuitpython-fancyled",
+      "repo": "https://github.com/adafruit/adafruit_circuitpython_fancyled",
+      "version": "1.4.19"
+    }
+  },
+  "neopixel": {
+    "package": "neopixel",
+    "version": "6.3.11",
+    "bundle": {
+      "name": "adafruit",
+      "build": "20231210",
+      "target": "9",
+      "url": "https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-9.x-mpy-20231210.zip"
+    },
+    "path": "lib/neopixel",
+    "hash": null,
+    "dependencies": {
+      "adafruit_pixelbuf": "2.0.4"
+    },
+    "raw": {
+      "dependencies": [
+        "adafruit_pixelbuf"
+      ],
+      "external_dependencies": [],
+      "package": false,
+      "path": "lib/neopixel",
+      "pypi_name": "adafruit-circuitpython-neopixel",
+      "repo": "https://github.com/adafruit/adafruit_circuitpython_neopixel",
+      "version": "6.3.11"
+    }
+  },
+  "adafruit_pixelbuf": {
+    "package": "adafruit_pixelbuf",
+    "version": "2.0.4",
+    "bundle": {
+      "name": "adafruit",
+      "build": "20231210",
+      "target": "9",
+      "url": "https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-9.x-mpy-20231210.zip"
+    },
+    "path": "lib/adafruit_pixelbuf",
+    "hash": null,
+    "dependencies": {},
+    "raw": {
+      "dependencies": [],
+      "external_dependencies": [],
+      "package": false,
+      "path": "lib/adafruit_pixelbuf",
+      "pypi_name": "adafruit-circuitpython-pixelbuf",
+      "repo": "https://github.com/adafruit/adafruit_circuitpython_pixelbuf",
+      "version": "2.0.4"
+    }
+  }
+}
